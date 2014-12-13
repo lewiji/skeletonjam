@@ -12,7 +12,10 @@ SkeletonWar.MainMenu.prototype = {
 
     this.loadingText = this.add.text(this.game.width / 2, this.game.height / 2 + 80, "Press Z or tap/click game to start", { font: "20px monospace", fill: "#fff" });
     this.loadingText.anchor.setTo(0.5, 0.5);
-
+    if (!this.music) {
+      this.music = this.add.audio('bgmusic1');
+      this.music.play();
+    }
   },
 
   update: function () {

@@ -1,7 +1,7 @@
 SkeletonWar.Game = function (game) {
 };
 // externalise vars for GC efficiency
-var dt, bullet, enemy, explosion, music;
+var dt, bullet, enemy, explosion;
 SkeletonWar.Game.prototype = {
 	create: function () {
 		this.createBackground();
@@ -10,8 +10,7 @@ SkeletonWar.Game.prototype = {
 		this.createEnemies();
 		this.setupPlayerIcons();
 		this.cursors = this.input.keyboard.createCursorKeys();
-		music = this.add.audio('bgmusic1');
-    	music.play();
+		
 	},
 	setupPlayerIcons: function () {
 		this.lives = this.add.group();
@@ -35,6 +34,16 @@ SkeletonWar.Game.prototype = {
 		this.player.body.collideWorldBounds = true;
 	},
 	createBullets: function () {
+		this.enemyBulletPool = this.add.group();
+		this.enemyBulletPool.enableBody = true;
+		this.enemyBulletPool.physicsBodyType = Phaser.Physics.ARCADE;
+		this.enemyBulletPool.createMultiple(100, 'enemyBullet');
+		this.enemyBulletPool.setAll('anchor.x', 0.5);
+		this.enemyBulletPool.setAll('anchor.y', 0.5);
+		this.enemyBulletPool.setAll('outOfBoundsKill', true);
+		this.enemyBulletPool.setAll('checkWorldBounds', true);
+		this.enemyBulletPool.setAll('reward', 0, false, false, 0, true);
+
 		this.bulletPool = this.add.group();
 		this.bulletPool.enableBody = true;
 		this.bulletPool.physicsBodyType = Phaser.Physics.ARCADE;
@@ -56,7 +65,22 @@ SkeletonWar.Game.prototype = {
 		this.enemyPool.setAll('outOfBoundsKill', true);
 		this.enemyPool.setAll('checkWorldBounds', true);
 		this.nextEnemyAt = 0;
-		this.enemyDelay = 1000;
+		this.enemyDelay = SkeletonWar.SPAWN_ENEMY_DELAY;
+
+		this.shooterPool = this.add.group();
+		this.shooterPool.enableBody = true;
+		this.shooterPool.physicsBodyType = Phaser.Physics.ARCADE;
+		this.shooterPool.createMultiple(20, 'enemy2');
+		this.shooterPool.setAll('anchor.x', 0.5);
+		this.shooterPool.setAll('anchor.y', 0.5);
+		this.shooterPool.setAll('outOfBoundsKill', true);
+		this.shooterPool.setAll('checkWorldBounds', true);
+		this.shooterPool.setAll(
+			'reward', SkeletonWar.SHOOTER_REWARD, false, false, 0, true
+		);
+
+		this.nextShooterAt = this.time.now + Phaser.Timer.SECOND * 5;
+		this.shooterDelay = SkeletonWar.SPAWN_SHOOTER_DELAY;
 	},
 	render: function () {
 		//this.game.debug.body(this.player);
@@ -67,6 +91,7 @@ SkeletonWar.Game.prototype = {
 
 		this.checkCollisions();
 		this.spawnEnemies();
+		this.enemyFire();
 		this.processInput();
 		this.processDelayedEffects();
 		
@@ -77,7 +102,19 @@ SkeletonWar.Game.prototype = {
 		);
 
 		this.physics.arcade.overlap(
+			this.bulletPool, this.shooterPool, this.enemyHit, null, this
+		);
+
+		this.physics.arcade.overlap(
 			this.player, this.enemyPool, this.playerHit, null, this
+		);
+
+		this.physics.arcade.overlap(
+			this.player, this.shooterPool, this.playerHit, null, this
+		);
+
+		this.physics.arcade.overlap(
+			this.player, this.enemyBulletPool, this.playerHit, null, this
 		);
 	},
 	spawnEnemies: function () {
@@ -87,6 +124,34 @@ SkeletonWar.Game.prototype = {
 			enemy.reset(SkeletonWar.WIDTH + 16, this.rnd.integerInRange(32, SkeletonWar.HEIGHT), SkeletonWar.ENEMY_HEALTH);
 			enemy.body.velocity.x = this.rnd.integerInRange(-60, -100);
 		}
+
+		if (this.nextShooterAt < this.time.now && this.shooterPool.countDead() > 0) {
+			this.nextShooterAt = this.time.now + this.shooterDelay;
+			var shooter = this.shooterPool.getFirstExists(false);
+			shooter.reset(
+				SkeletonWar.WIDTH + 32, this.rnd.integerInRange(32, SkeletonWar.HEIGHT - 32), SkeletonWar.SHOOTER_HEALTH
+			);
+
+			var target = this.rnd.integerInRange(32, SkeletonWar.HEIGHT - 32);
+
+			shooter.rotation = this.physics.arcade.moveToXY(
+				shooter, 0, target, this.rnd.integerInRange(SkeletonWar.SHOOTER_MIN_VELOCITY, SkeletonWar.SHOOTER_MAX_VELOCITY)
+			) - Math.PI / 2;
+
+			shooter.nextShotAt = 0;
+		}
+	},
+	enemyFire: function () {
+		this.shooterPool.forEachAlive(function (enemy) {
+			if (this.time.now > enemy.nextShotAt && this.enemyBulletPool.countDead() > 0) {
+				var bullet = this.enemyBulletPool.getFirstExists(false);
+				bullet.reset(enemy.x, enemy.y);
+				this.physics.arcade.moveToObject(
+					bullet, this.player, SkeletonWar.ENEMY_BULLET_VELOCITY
+				);
+				enemy.nextShotAt = this.time.now + SkeletonWar.SHOOTER_SHOT_DELAY;
+			}
+		}, this);
 	},
 	processInput: function () {
 		this.player.body.velocity.x = 0;
