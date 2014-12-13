@@ -115,6 +115,7 @@ SkeletonWar.Game.prototype = {
 	processDelayedEffects: function () {
 		if (this.ghostUntil && this.ghostUntil < this.time.now) {
 			this.ghostUntil = null;
+			this.player.alpha = 1;
 		}
 	},
 	enemyHit: function (bullet, enemy) {
@@ -130,6 +131,7 @@ SkeletonWar.Game.prototype = {
 		if (life !== null) {
 			life.kill();
 			this.ghostUntil = this.time.now + SkeletonWar.PLAYER_GHOST_TIME;
+			this.player.alpha = 0.5;
 		} else {
 			player.kill();
 			this.quitGame();
@@ -157,10 +159,6 @@ SkeletonWar.Game.prototype = {
 		bullet.body.velocity.x = 500;
 	},
 	quitGame: function (pointer) {
-		this.bg.destroy();
-		this.player.destroy();
-		this.enemyPool.destroy();
-		this.bulletPool.destroy();
 		this.state.start('MainMenu');
 	}
 };
