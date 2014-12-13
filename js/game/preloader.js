@@ -28,7 +28,7 @@ SkeletonWar.Preloader.prototype = {
     this.load.image('player', 'assets/img/playerShip1_blue.png');
     this.load.image('greenEnemy', 'assets/img/ufoGreen.png');
     this.load.image('bullet', 'assets/img/laserBlue08.png');
-
+    this.load.audio('bgmusic1', ['assets/audio/bg1.ogg']);
   },
 
   create: function () {
