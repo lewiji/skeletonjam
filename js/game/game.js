@@ -1,7 +1,7 @@
 SkeletonWar.Game = function (game) {
 };
 // externalise vars for GC efficiency
-var dt, bullet, enemy, explosion;
+var dt, bullet, enemy, explosion, music;
 SkeletonWar.Game.prototype = {
 	create: function () {
 		this.createBackground();
@@ -10,6 +10,8 @@ SkeletonWar.Game.prototype = {
 		this.createEnemies();
 		this.setupPlayerIcons();
 		this.cursors = this.input.keyboard.createCursorKeys();
+		music = this.add.audio('bgmusic1');
+    	music.play();
 	},
 	setupPlayerIcons: function () {
 		this.lives = this.add.group();
