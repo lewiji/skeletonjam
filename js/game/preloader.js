@@ -26,6 +26,7 @@ SkeletonWar.Preloader.prototype = {
     //  Here we load the rest of the assets our game needs.
     this.load.image('darkPurple', 'assets/img/darkPurple.png');
     this.load.image('player', 'assets/img/playerShip1_blue.png');
+    this.load.image('greenEnemy', 'assets/img/ufoGreen.png');
     this.load.image('bullet', 'assets/img/laserBlue08.png');
 
   },
