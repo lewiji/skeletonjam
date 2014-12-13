@@ -1,18 +1,20 @@
-window.onload = function() {
+SkeletonWar.Game = function (game) {
+};
+var dt;
+SkeletonWar.Game.prototype = {
+	create: function () {
+		this.bg = this.add.tileSprite(0, 0, SkeletonWar.WIDTH, SkeletonWar.HEIGHT, 'darkPurple');
 
-    var game = new Phaser.Game(640, 360, Phaser.AUTO, '', { preload: preload, create: create });
-
-    function preload () {
-
-        game.load.image('logo', 'assets/img/phaser.png');
-
-    }
-
-    function create () {
-
-        var logo = game.add.sprite(game.world.centerX, game.world.centerY, 'logo');
-        logo.anchor.setTo(0.5, 0.5);
-
-    }
-
+		this.player = this.add.sprite(SkeletonWar.WIDTH / 8, SkeletonWar.HEIGHT / 2, 'player');
+		this.player.anchor = {x: 0.5, y: 0.5};
+		this.player.rotation = 1.571;
+		this.player.scale = {x: 0.5, y: 0.5};
+	},
+	update: function () {
+		dt = this.time.physicsElapsed;
+		this.bg.tilePosition.x -= 200 * dt;
+	},
+	quitGame: function (pointer) {
+		this.state.start('MainMenu');
+	}
 };
