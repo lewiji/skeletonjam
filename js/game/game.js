@@ -13,6 +13,7 @@ SkeletonWar.Game.prototype = {
 		this.music = this.add.audio('bgmusic1');
 		this.music.play('', 0, 1, true);
 		this.score = 0;
+		SkeletonWar.setDefaults();
 	},
 	setupPlayerIcons: function () {
 		this.lives = this.add.group();
@@ -116,6 +117,23 @@ SkeletonWar.Game.prototype = {
 	},
 	addToScore: function (score) {
 		this.score += score;
+		if (this.score >= 250 && SkeletonWar.SPAWN_SHOOTER_DELAY < Phaser.Timer.SECOND * 2) {
+			SkeletonWar.SPAWN_SHOOTER_DELAY = Phaser.Timer.SECOND * 2;
+		}
+
+		if (this.score >= 500 && SkeletonWar.ENEMY_HEALTH < 8) {
+			SkeletonWar.ENEMY_HEALTH = 8;
+			SkeletonWar.SHOOTER_HEALTH = 12;
+		}
+
+		if (this.score >= 1000 && SkeletonWar.ENEMY_DROP_RATE > 0.15) {
+    		SkeletonWar.ENEMY_DROP_RATE = 0.15;
+		}
+
+		if (this.score >= 1500 && SkeletonWar.SHOOTER_DROP_RATE > 0.3) {
+			SkeletonWar.SHOOTER_DROP_RATE = 0.3;
+		}
+
 		if (this.score >= 2000 && this.bossPool.countDead() == 1) {
 			this.spawnBoss();
 		}

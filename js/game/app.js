@@ -1,5 +1,5 @@
 window.onload = function() {
-    var game = new Phaser.Game(SkeletonWar.WIDTH, SkeletonWar.HEIGHT, Phaser.CANVAS, 'gameContainer', null, false, false);
+    var game = new Phaser.Game(SkeletonWar.WIDTH, SkeletonWar.HEIGHT, Phaser.AUTO, 'gameContainer', null, false, false);
 
     game.state.add('Boot', SkeletonWar.Boot);
     game.state.add('Preloader', SkeletonWar.Preloader);
