@@ -414,7 +414,7 @@ SkeletonWar.Game.prototype = {
 				bullet.reset(this.player.x + (10 + i * 6), this.player.y);
 				// the left bullets spread from -95 degrees to -135 degrees
 				this.physics.arcade.velocityFromAngle(
-				  5 - i * 10, SkeletonWar.BULLET_VELOCITY, bullet.body.velocity
+				  5 - i * 5, SkeletonWar.BULLET_VELOCITY, bullet.body.velocity
 				);
 
 				bullet = this.bulletPool.getFirstExists(false);
@@ -422,7 +422,7 @@ SkeletonWar.Game.prototype = {
 				bullet.reset(this.player.x + (10 + i * 6), this.player.y);
 				// the right bullets spread from -85 degrees to -45
 				this.physics.arcade.velocityFromAngle(
-				  -5 + i * 10, SkeletonWar.BULLET_VELOCITY, bullet.body.velocity
+				  -5 + i * 5, SkeletonWar.BULLET_VELOCITY, bullet.body.velocity
 				);
 			}
 		}
