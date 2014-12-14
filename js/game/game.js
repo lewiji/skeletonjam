@@ -109,6 +109,8 @@ SkeletonWar.Game.prototype = {
 
 	    this.boss = this.bossPool.getTop();
 	    this.boss.body.setSize(282, 135);
+	    this.boss.animations.add('fly', [0]);
+	    this.boss.animations.add('stage2', [1]);
     	this.bossApproaching = false;
 	},
 	addToScore: function (score) {
@@ -220,6 +222,7 @@ SkeletonWar.Game.prototype = {
 		    rightBullet.reset(this.boss.x + 10 + i * 10, this.boss.y + 20);
 
 		    if (this.boss.health > 250) {
+		    	this.boss.play('stage2');
 		      // aim directly at the player
 		      this.physics.arcade.moveToObject(
 		        leftBullet, this.player, SkeletonWar.ENEMY_BULLET_VELOCITY
