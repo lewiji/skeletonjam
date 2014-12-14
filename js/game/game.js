@@ -32,6 +32,9 @@ SkeletonWar.Game.prototype = {
 		this.player.speed = 200;
 		this.player.body.setSize(20, 20, -5, 0);
 		this.player.body.collideWorldBounds = true;
+		this.player.animations.add('fly', [0], 20);
+		this.player.animations.add('ghost', [0, 1], 10, true);
+		this.player.play('fly');
 	},
 	createBullets: function () {
 		this.enemyBulletPool = this.add.group();
@@ -125,7 +128,7 @@ SkeletonWar.Game.prototype = {
 		if (this.nextEnemyAt < this.time.now && this.enemyPool.countDead() > 0) {
 			this.nextEnemyAt = this.time.now + this.enemyDelay;
 			enemy = this.enemyPool.getFirstExists(false);
-			enemy.reset(SkeletonWar.WIDTH + 16, this.rnd.integerInRange(32, SkeletonWar.HEIGHT), SkeletonWar.ENEMY_HEALTH);
+			enemy.reset(SkeletonWar.WIDTH + 16, this.rnd.integerInRange(64, SkeletonWar.HEIGHT - 64), SkeletonWar.ENEMY_HEALTH);
 			enemy.body.velocity.x = this.rnd.integerInRange(-60, -100);
 			enemy.play('fly');
 		}
@@ -187,7 +190,7 @@ SkeletonWar.Game.prototype = {
 	processDelayedEffects: function () {
 		if (this.ghostUntil && this.ghostUntil < this.time.now) {
 			this.ghostUntil = null;
-			this.player.alpha = 1;
+			this.player.play('fly');
 		}
 	},
 	enemyHit: function (bullet, enemy) {
@@ -203,7 +206,7 @@ SkeletonWar.Game.prototype = {
 		if (life !== null) {
 			life.kill();
 			this.ghostUntil = this.time.now + SkeletonWar.PLAYER_GHOST_TIME;
-			this.player.alpha = 0.5;
+			this.player.play('ghost');
 		} else {
 			player.kill();
 			this.quitGame();
