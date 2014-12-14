@@ -16,6 +16,16 @@ SkeletonWar.Game.prototype = {
 		this.music = this.add.audio('bgmusic1');
 		this.music.play('', 0, 1, true);
 		this.bossMusic = this.add.audio('boss');
+		this.sfx_playershoot = this.add.audio('playershoot');
+		this.sfx_splode = this.add.audio('splode2');
+		this.sfx_powerup = this.add.audio('powerup');
+		this.sfx_hit = this.add.audio('hit');
+		this.sfx_powerup_get = this.add.audio('powerup_get');
+		this.sfx_boss_explode = this.add.audio('bossExplode');
+		this.sfx_boss_approach = this.add.audio('bossApproach');
+		this.sfx_player_die = this.add.audio('playerdie');
+		this.sfx_enemy_shoot = this.add.audio('enemyshoot');
+		this.sfx_boss_shoot = this.add.audio('bossShoot');
 	},
 	setupPlayerIcons: function () {
 		this.powerUpPool = this.add.group();
@@ -60,9 +70,15 @@ SkeletonWar.Game.prototype = {
 		this.enemyBulletPool.createMultiple(100, 'enemyBullet');
 		this.enemyBulletPool.setAll('anchor.x', 0.5);
 		this.enemyBulletPool.setAll('anchor.y', 0.5);
+		this.enemyBulletPool.setAll('scale.x', 0.5);
+		this.enemyBulletPool.setAll('scale.y', 0.5);
 		this.enemyBulletPool.setAll('outOfBoundsKill', true);
 		this.enemyBulletPool.setAll('checkWorldBounds', true);
 		this.enemyBulletPool.setAll('reward', 0, false, false, 0, true);
+
+		this.enemyBulletPool.forEach(function (bullet) {
+			bullet.animations.add('fly', [0, 1, 2, 3], 5, true);
+		});
 
 		this.bulletPool = this.add.group();
 		this.bulletPool.enableBody = true;
@@ -97,6 +113,22 @@ SkeletonWar.Game.prototype = {
 
 		this.enemyPool.forEach(function (enemy) {
 			enemy.animations.add('fly', [0, 1], 20, true);
+		});
+
+		this.explosionPool = this.add.group();
+		this.explosionPool.enableBody = true;
+		this.explosionPool.physicsBodyType = Phaser.Physics.ARCADE;
+		this.explosionPool.createMultiple(50, 'explosion');
+		this.explosionPool.setAll('anchor.x', 0.5);
+		this.explosionPool.setAll('anchor.y', 0.5);
+		this.explosionPool.setAll('outOfBoundsKill', true);
+		this.explosionPool.setAll('checkWorldBounds', true);
+
+		this.explosionPool.forEach(function (explosion) {
+			explosion.animations.add('explode', [0, 1, 2, 3], 10);
+			explosion.events.onAnimationComplete.add(function (e) {
+				e.kill();
+			}, this);
 		});
 
 		this.shooterPool = this.add.group();
@@ -169,6 +201,7 @@ SkeletonWar.Game.prototype = {
 		}
 	},
 	spawnBoss: function () {
+		this.sfx_boss_approach.play();
 		this.bossApproaching = true;
 		this.boss.reset(this.game.width + (this.boss.width / 2), this.game.height / 2, SkeletonWar.BOSS_HEALTH);
 		this.physics.enable(this.boss, Phaser.Physics.ARCADE);
@@ -229,7 +262,8 @@ SkeletonWar.Game.prototype = {
 	playerPowerUp: function (player, powerUp) {
 		this.addToScore(powerUp.reward);
 		powerUp.kill();
-		if (this.weaponLevel < 5) {
+		this.sfx_powerup_get.play();
+		if (this.weaponLevel < 2) {
 			this.weaponLevel++;
 		}
 	},
@@ -266,6 +300,8 @@ SkeletonWar.Game.prototype = {
 			if (this.time.now > enemy.nextShotAt && this.enemyBulletPool.countDead() > 0) {
 				var bullet = this.enemyBulletPool.getFirstExists(false);
 				bullet.reset(enemy.x, enemy.y);
+				bullet.play('fly');
+				this.sfx_enemy_shoot.play();
 				this.physics.arcade.moveToObject(
 					bullet, this.player, SkeletonWar.ENEMY_BULLET_VELOCITY
 				);
@@ -285,6 +321,7 @@ SkeletonWar.Game.prototype = {
 		    leftBullet.reset(this.boss.x - 10 - i * 10, this.boss.y + 20);
 		    var rightBullet = this.enemyBulletPool.getFirstExists(false);
 		    rightBullet.reset(this.boss.x + 10 + i * 10, this.boss.y + 20);
+		    this.sfx_boss_shoot.play();
 
 		    if (this.boss.health > 250) {
 		      // aim directly at the player
@@ -367,6 +404,7 @@ SkeletonWar.Game.prototype = {
 			this.weaponLevel = 0;
 			this.ghostUntil = this.time.now + SkeletonWar.PLAYER_GHOST_TIME;
 			this.player.play('ghost');
+			this.sfx_player_die.play();
 		} else {
 			player.kill();
 			this.quitGame();
@@ -374,6 +412,7 @@ SkeletonWar.Game.prototype = {
 	},
 	damageEnemy: function (enemy, damage) {
 		enemy.damage(damage);
+		this.sfx_hit.play();
 		if (!enemy.alive) {
 			this.spawnPowerUp(enemy);
 			this.addToScore(enemy.reward);
@@ -381,6 +420,13 @@ SkeletonWar.Game.prototype = {
 				this.bossPool.destroy();
 				this.bossMusic.stop();
 				this.music.play('', 0, 1, true);
+				this.sfx_boss_explode.play();
+			} else {
+				var explosion = this.explosionPool.getFirstExists(false);
+				explosion.reset(enemy.x, enemy.y, 1);
+				explosion.body.velocity.x = enemy.body.velocity.x;
+				explosion.play('explode');
+				this.sfx_splode.play();
 			}
 		}
 	},
@@ -393,13 +439,14 @@ SkeletonWar.Game.prototype = {
 	        var powerUp = this.powerUpPool.getFirstExists(false);
 	        powerUp.reset(enemy.x, enemy.y);
 	        powerUp.body.velocity.x = -SkeletonWar.POWERUP_VELOCITY;
+	        this.sfx_powerup.play();
 	    }
 	},
 	fire: function () {
 		if (!this.player.alive || this.nextShotAt > this.time.now) {
 			return;
 		}
-
+		this.sfx_playershoot.play('', 0, 0.5);
 		this.nextShotAt = this.time.now + this.shotDelay;
 
 		if (this.weaponLevel === 0) {
