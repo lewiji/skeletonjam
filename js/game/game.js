@@ -109,8 +109,9 @@ SkeletonWar.Game.prototype = {
 
 	    this.boss = this.bossPool.getTop();
 	    this.boss.body.setSize(282, 135);
-	    this.boss.animations.add('fly', [0]);
-	    this.boss.animations.add('stage2', [1]);
+	    this.boss.animations.add('fly', [0], 20, true);
+	    this.boss.animations.add('stage2', [1], 20, true);
+	    this.boss.play('fly');
     	this.bossApproaching = false;
 	},
 	addToScore: function (score) {
@@ -172,6 +173,9 @@ SkeletonWar.Game.prototype = {
 
 	},
 	spawnEnemies: function () {
+		if (this.boss.alive) {
+			return;
+		}
 		if (this.nextEnemyAt < this.time.now && this.enemyPool.countDead() > 0) {
 			this.nextEnemyAt = this.time.now + this.enemyDelay;
 			enemy = this.enemyPool.getFirstExists(false);
@@ -222,7 +226,6 @@ SkeletonWar.Game.prototype = {
 		    rightBullet.reset(this.boss.x + 10 + i * 10, this.boss.y + 20);
 
 		    if (this.boss.health > 250) {
-		    	this.boss.play('stage2');
 		      // aim directly at the player
 		      this.physics.arcade.moveToObject(
 		        leftBullet, this.player, SkeletonWar.ENEMY_BULLET_VELOCITY
@@ -231,6 +234,7 @@ SkeletonWar.Game.prototype = {
 		        rightBullet, this.player, SkeletonWar.ENEMY_BULLET_VELOCITY
 		      );
 		    } else {
+		      this.boss.play('stage2');
 		      // aim slightly off center of the player
 		      this.physics.arcade.moveToXY(
 		        leftBullet, this.player.x - i * 100, this.player.y,
@@ -310,6 +314,9 @@ SkeletonWar.Game.prototype = {
 		enemy.damage(damage);
 		if (!enemy.alive) {
 			this.addToScore(enemy.reward);
+			if (enemy.key === 'boss') {
+				this.bossPool.destroy();
+			}
 		}
 	},
 	fire: function () {
