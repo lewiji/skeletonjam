@@ -15,6 +15,7 @@ SkeletonWar.Game.prototype = {
 		this.cursors = this.input.keyboard.createCursorKeys();
 		this.music = this.add.audio('bgmusic1');
 		this.music.play('', 0, 1, true);
+		this.bossMusic = this.add.audio('boss');
 	},
 	setupPlayerIcons: function () {
 		this.powerUpPool = this.add.group();
@@ -172,6 +173,8 @@ SkeletonWar.Game.prototype = {
 		this.boss.reset(this.game.width + (this.boss.width / 2), this.game.height / 2, SkeletonWar.BOSS_HEALTH);
 		this.physics.enable(this.boss, Phaser.Physics.ARCADE);
 		this.boss.body.velocity.x = -SkeletonWar.BOSS_Y_VELOCITY;
+		this.music.stop();
+		this.bossMusic.play('', 0, 1, true);
 	},
 	render: function () {
 		//this.game.debug.body(this.boss);
@@ -376,6 +379,8 @@ SkeletonWar.Game.prototype = {
 			this.addToScore(enemy.reward);
 			if (enemy.key === 'boss') {
 				this.bossPool.destroy();
+				this.bossMusic.stop();
+				this.music.play('', 0, 1, true);
 			}
 		}
 	},
