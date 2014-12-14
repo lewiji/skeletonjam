@@ -17,6 +17,18 @@ SkeletonWar.Game.prototype = {
 		this.music.play('', 0, 1, true);
 	},
 	setupPlayerIcons: function () {
+		this.powerUpPool = this.add.group();
+	    this.powerUpPool.enableBody = true;
+	    this.powerUpPool.physicsBodyType = Phaser.Physics.ARCADE;
+	    this.powerUpPool.createMultiple(5, 'powerup');
+	    this.powerUpPool.setAll('anchor.x', 0.5);
+	    this.powerUpPool.setAll('anchor.y', 0.5);
+	    this.powerUpPool.setAll('outOfBoundsKill', true);
+	    this.powerUpPool.setAll('checkWorldBounds', true);
+	    this.powerUpPool.setAll(
+	      'reward', SkeletonWar.POWERUP_REWARD, false, false, 0, true
+	    );
+
 		this.lives = this.add.group();
 		var firstLifeIconX = this.game.width - 10 - (SkeletonWar.PLAYER_EXTRA_LIVES * 30);
 		for (var i = 0; i < SkeletonWar.PLAYER_EXTRA_LIVES; i++) {
@@ -38,6 +50,7 @@ SkeletonWar.Game.prototype = {
 		this.player.animations.add('fly', [0, 1], 5, true);
 		this.player.animations.add('ghost', [0, 2], 10, true);
 		this.player.play('fly');
+		this.weaponLevel = 0;
 	},
 	createBullets: function () {
 		this.enemyBulletPool = this.add.group();
@@ -56,6 +69,8 @@ SkeletonWar.Game.prototype = {
 		this.bulletPool.createMultiple(100, 'bullet');
 		this.bulletPool.setAll('anchor.x', 0.5);
 		this.bulletPool.setAll('anchor.y', 0.5);
+		this.bulletPool.setAll('scale.y', 0.5);
+		this.bulletPool.setAll('scale.x', 0.5);
 		this.bulletPool.setAll('outOfBoundsKill', true);
 		this.bulletPool.setAll('checkWorldBounds', true);
 		this.nextShotAt = 0;
@@ -72,6 +87,9 @@ SkeletonWar.Game.prototype = {
 		this.enemyPool.setAll('checkWorldBounds', true);
 		this.enemyPool.setAll(
 			'reward', SkeletonWar.ENEMY_REWARD, false, false, 0, true
+		);
+		this.enemyPool.setAll(
+		  'dropRate', SkeletonWar.ENEMY_DROP_RATE, false, false, 0, true
 		);
 		this.nextEnemyAt = 0;
 		this.enemyDelay = SkeletonWar.SPAWN_ENEMY_DELAY;
@@ -90,6 +108,9 @@ SkeletonWar.Game.prototype = {
 		this.shooterPool.setAll('checkWorldBounds', true);
 		this.shooterPool.setAll(
 			'reward', SkeletonWar.SHOOTER_REWARD, false, false, 0, true
+		);
+		this.shooterPool.setAll(
+		  'dropRate', SkeletonWar.SHOOTER_DROP_RATE, false, false, 0, true
 		);
 
 		this.nextShooterAt = this.time.now + Phaser.Timer.SECOND * 5;
@@ -127,21 +148,19 @@ SkeletonWar.Game.prototype = {
 	addToScore: function (score) {
 		this.score += score;
 		this.scoreText.text = this.score;
-		if (this.score >= 250 && SkeletonWar.SPAWN_SHOOTER_DELAY < Phaser.Timer.SECOND * 2) {
-			SkeletonWar.SPAWN_SHOOTER_DELAY = Phaser.Timer.SECOND * 2;
+		if (this.score >= 250 && SkeletonWar.SPAWN_SHOOTER_DELAY > Phaser.Timer.SECOND / 4) {
+			SkeletonWar.SPAWN_ENEMY_DELAY = Phaser.Timer.SECOND / 4;
+			SkeletonWar.SPAWN_SHOOTER_DELAY = Phaser.Timer.SECOND;
 		}
 
-		if (this.score >= 500 && SkeletonWar.ENEMY_HEALTH < 8) {
-			SkeletonWar.ENEMY_HEALTH = 8;
-			SkeletonWar.SHOOTER_HEALTH = 12;
+		if (this.score >= 500 && SkeletonWar.ENEMY_HEALTH < 12) {
+			SkeletonWar.ENEMY_HEALTH = 12;
+			SkeletonWar.SHOOTER_HEALTH = 15;
 		}
 
-		if (this.score >= 1000 && SkeletonWar.ENEMY_DROP_RATE > 0.15) {
-    		SkeletonWar.ENEMY_DROP_RATE = 0.15;
-		}
-
-		if (this.score >= 1500 && SkeletonWar.SHOOTER_DROP_RATE > 0.3) {
-			SkeletonWar.SHOOTER_DROP_RATE = 0.3;
+		if (this.score >= 1000 && SkeletonWar.SHOOTER_SHOT_DELAY > Phaser.Timer.SECOND) {
+			SkeletonWar.SHOT_DELAY = Phaser.Timer.SECOND * 0.1;
+			SkeletonWar.SHOOTER_SHOT_DELAY = Phaser.Timer.SECOND * 0.75;
 		}
 
 		if (this.score >= 2000 && this.bossPool.countDead() == 1) {
@@ -189,6 +208,10 @@ SkeletonWar.Game.prototype = {
 			this.player, this.enemyBulletPool, this.playerHit, null, this
 		);
 
+		this.physics.arcade.overlap(
+		  this.player, this.powerUpPool, this.playerPowerUp, null, this
+		);
+
 		if (this.bossApproaching === false) {
 	      this.physics.arcade.overlap(
 	        this.bulletPool, this.bossPool, this.enemyHit, null, this
@@ -199,6 +222,13 @@ SkeletonWar.Game.prototype = {
 	      );
 	    }
 
+	},
+	playerPowerUp: function (player, powerUp) {
+		this.addToScore(powerUp.reward);
+		powerUp.kill();
+		if (this.weaponLevel < 5) {
+			this.weaponLevel++;
+		}
 	},
 	spawnEnemies: function () {
 		if (this.boss.alive) {
@@ -331,6 +361,7 @@ SkeletonWar.Game.prototype = {
 		var life = this.lives.getFirstAlive();
 		if (life !== null) {
 			life.kill();
+			this.weaponLevel = 0;
 			this.ghostUntil = this.time.now + SkeletonWar.PLAYER_GHOST_TIME;
 			this.player.play('ghost');
 		} else {
@@ -341,26 +372,60 @@ SkeletonWar.Game.prototype = {
 	damageEnemy: function (enemy, damage) {
 		enemy.damage(damage);
 		if (!enemy.alive) {
+			this.spawnPowerUp(enemy);
 			this.addToScore(enemy.reward);
 			if (enemy.key === 'boss') {
 				this.bossPool.destroy();
 			}
 		}
 	},
+	spawnPowerUp: function (enemy) {
+		if (this.powerUpPool.countDead() === 0 || this.weaponLevel === 5) { 
+	        return;
+	    }
+	 
+	    if (this.rnd.frac() < enemy.dropRate) {
+	        var powerUp = this.powerUpPool.getFirstExists(false);
+	        powerUp.reset(enemy.x, enemy.y);
+	        powerUp.body.velocity.x = -SkeletonWar.POWERUP_VELOCITY;
+	    }
+	},
 	fire: function () {
 		if (!this.player.alive || this.nextShotAt > this.time.now) {
 			return;
 		}
 
-		if (this.bulletPool.countDead() === 0) {
-			return;
-		}
-		
 		this.nextShotAt = this.time.now + this.shotDelay;
 
-		bullet = this.bulletPool.getFirstExists(false);
-		bullet.reset(this.player.x + 20, this.player.y);
-		bullet.body.velocity.x = 500;
+		if (this.weaponLevel === 0) {
+			if (this.bulletPool.countDead() === 0) {
+				return;
+			}
+			bullet = this.bulletPool.getFirstExists(false);
+			bullet.reset(this.player.x + 20, this.player.y);
+			bullet.body.velocity.x = SkeletonWar.BULLET_VELOCITY;
+		} else {
+			if (this.bulletPool.countDead() < this.weaponLevel * 2) {
+				return;
+			}
+			for (var i = 0; i < this.weaponLevel; i++) {
+				bullet = this.bulletPool.getFirstExists(false);
+				// spawn left bullet slightly left off center
+				bullet.reset(this.player.x + (10 + i * 6), this.player.y);
+				// the left bullets spread from -95 degrees to -135 degrees
+				this.physics.arcade.velocityFromAngle(
+				  5 - i * 10, SkeletonWar.BULLET_VELOCITY, bullet.body.velocity
+				);
+
+				bullet = this.bulletPool.getFirstExists(false);
+				// spawn right bullet slightly right off center
+				bullet.reset(this.player.x + (10 + i * 6), this.player.y);
+				// the right bullets spread from -85 degrees to -45
+				this.physics.arcade.velocityFromAngle(
+				  -5 + i * 10, SkeletonWar.BULLET_VELOCITY, bullet.body.velocity
+				);
+			}
+		}
 	},
 	quitGame: function (pointer) {
 		this.state.start('MainMenu');
