@@ -154,9 +154,9 @@ SkeletonWar.Game.prototype = {
 			SkeletonWar.SPAWN_SHOOTER_DELAY = Phaser.Timer.SECOND;
 		}
 
-		if (this.score >= 500 && SkeletonWar.ENEMY_HEALTH < 12) {
-			SkeletonWar.ENEMY_HEALTH = 12;
-			SkeletonWar.SHOOTER_HEALTH = 15;
+		if (this.score >= 500 && SkeletonWar.ENEMY_HEALTH < 5) {
+			SkeletonWar.ENEMY_HEALTH = 5;
+			SkeletonWar.SHOOTER_HEALTH = 8;
 		}
 
 		if (this.score >= 1000 && SkeletonWar.SHOOTER_SHOT_DELAY > Phaser.Timer.SECOND) {
@@ -435,5 +435,6 @@ SkeletonWar.Game.prototype = {
 	quitGame: function (pointer) {
 		this.state.start('MainMenu');
 		this.music.stop();
+		this.bossMusic.stop();
 	}
 };
