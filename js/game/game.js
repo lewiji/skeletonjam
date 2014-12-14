@@ -4,16 +4,17 @@ SkeletonWar.Game = function (game) {
 var dt, bullet, enemy, explosion;
 SkeletonWar.Game.prototype = {
 	create: function () {
+		SkeletonWar.setDefaults();
+		this.score = 0;
 		this.createBackground();
 		this.createPlayer();
 		this.createBullets();
 		this.createEnemies();
 		this.setupPlayerIcons();
+		this.createText();
 		this.cursors = this.input.keyboard.createCursorKeys();
 		this.music = this.add.audio('bgmusic1');
 		this.music.play('', 0, 1, true);
-		this.score = 0;
-		SkeletonWar.setDefaults();
 	},
 	setupPlayerIcons: function () {
 		this.lives = this.add.group();
@@ -34,8 +35,8 @@ SkeletonWar.Game.prototype = {
 		this.player.speed = 200;
 		this.player.body.setSize(20, 20, -5, 0);
 		this.player.body.collideWorldBounds = true;
-		this.player.animations.add('fly', [0], 20);
-		this.player.animations.add('ghost', [0, 1], 10, true);
+		this.player.animations.add('fly', [0, 1], 5, true);
+		this.player.animations.add('ghost', [0, 2], 10, true);
 		this.player.play('fly');
 	},
 	createBullets: function () {
@@ -115,8 +116,17 @@ SkeletonWar.Game.prototype = {
 	    this.boss.play('fly');
     	this.bossApproaching = false;
 	},
+	createText: function () {
+		this.scoreText = this.add.text(
+		  this.game.width / 2, 30, '' + this.score, 
+		  { font: '20px monospace', fill: '#fff', align: 'center' }
+		);
+		this.scoreText.anchor.setTo(0.5, 0.5);
+
+	},
 	addToScore: function (score) {
 		this.score += score;
+		this.scoreText.text = this.score;
 		if (this.score >= 250 && SkeletonWar.SPAWN_SHOOTER_DELAY < Phaser.Timer.SECOND * 2) {
 			SkeletonWar.SPAWN_SHOOTER_DELAY = Phaser.Timer.SECOND * 2;
 		}
