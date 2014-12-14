@@ -24,12 +24,12 @@ SkeletonWar.Preloader.prototype = {
     this.load.setPreloadSprite(this.preloadBar);
 
     //  Here we load the rest of the assets our game needs.
-    this.load.image('darkPurple', 'assets/img/darkPurple.png');
-    this.load.image('player', 'assets/img/playerShip1_blue.png');
-    this.load.image('greenEnemy', 'assets/img/ufoGreen.png');
+    this.load.image('darkPurple', 'assets/img/bg-static.png');
+    this.load.image('player', 'assets/img/PLAYER-mockup.png');
+    this.load.spritesheet('greenEnemy', 'assets/img/passiveskull_0.png', 64, 64);
     this.load.image('enemy2', 'assets/img/enemyRed1.png');
-    this.load.image('bullet', 'assets/img/laserBlue08.png');
-    this.load.image('enemyBullet', 'assets/img/laserBlue11.png');
+    this.load.image('bullet', 'assets/img/shot_16px_0.png');
+    this.load.image('enemyBullet', 'assets/img/shot_16px_1.png');
     this.load.audio('bgmusic1', ['assets/audio/bg1.ogg']);
   },
 

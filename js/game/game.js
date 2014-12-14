@@ -10,7 +10,8 @@ SkeletonWar.Game.prototype = {
 		this.createEnemies();
 		this.setupPlayerIcons();
 		this.cursors = this.input.keyboard.createCursorKeys();
-		
+		this.music = this.add.audio('bgmusic1');
+		this.music.play('', 0, 1, true);
 	},
 	setupPlayerIcons: function () {
 		this.lives = this.add.group();
@@ -27,7 +28,6 @@ SkeletonWar.Game.prototype = {
 	createPlayer: function () {
 		this.player = this.add.sprite(SkeletonWar.WIDTH / 8, SkeletonWar.HEIGHT / 2, 'player');
 		this.player.anchor.setTo(0.5, 0.5);
-		this.player.rotation = 1.571;
 		this.physics.enable(this.player, Phaser.Physics.ARCADE);
 		this.player.speed = 200;
 		this.player.body.setSize(20, 20, -5, 0);
@@ -66,6 +66,10 @@ SkeletonWar.Game.prototype = {
 		this.enemyPool.setAll('checkWorldBounds', true);
 		this.nextEnemyAt = 0;
 		this.enemyDelay = SkeletonWar.SPAWN_ENEMY_DELAY;
+
+		this.enemyPool.forEach(function (enemy) {
+			enemy.animations.add('fly', [0, 1], 20, true);
+		});
 
 		this.shooterPool = this.add.group();
 		this.shooterPool.enableBody = true;
@@ -123,6 +127,7 @@ SkeletonWar.Game.prototype = {
 			enemy = this.enemyPool.getFirstExists(false);
 			enemy.reset(SkeletonWar.WIDTH + 16, this.rnd.integerInRange(32, SkeletonWar.HEIGHT), SkeletonWar.ENEMY_HEALTH);
 			enemy.body.velocity.x = this.rnd.integerInRange(-60, -100);
+			enemy.play('fly');
 		}
 
 		if (this.nextShooterAt < this.time.now && this.shooterPool.countDead() > 0) {
@@ -227,5 +232,6 @@ SkeletonWar.Game.prototype = {
 	},
 	quitGame: function (pointer) {
 		this.state.start('MainMenu');
+		this.music.stop();
 	}
 };
