@@ -12,6 +12,7 @@ SkeletonWar.Game.prototype = {
 		this.cursors = this.input.keyboard.createCursorKeys();
 		this.music = this.add.audio('bgmusic1');
 		this.music.play('', 0, 1, true);
+		this.score = 0;
 	},
 	setupPlayerIcons: function () {
 		this.lives = this.add.group();
@@ -67,6 +68,9 @@ SkeletonWar.Game.prototype = {
 		this.enemyPool.setAll('anchor.y', 0.5);
 		this.enemyPool.setAll('outOfBoundsKill', true);
 		this.enemyPool.setAll('checkWorldBounds', true);
+		this.enemyPool.setAll(
+			'reward', SkeletonWar.ENEMY_REWARD, false, false, 0, true
+		);
 		this.nextEnemyAt = 0;
 		this.enemyDelay = SkeletonWar.SPAWN_ENEMY_DELAY;
 
@@ -88,9 +92,39 @@ SkeletonWar.Game.prototype = {
 
 		this.nextShooterAt = this.time.now + Phaser.Timer.SECOND * 5;
 		this.shooterDelay = SkeletonWar.SPAWN_SHOOTER_DELAY;
+
+		this.bossPool = this.add.group();
+	    this.bossPool.enableBody = true;
+	    this.bossPool.physicsBodyType = Phaser.Physics.ARCADE;
+	    this.bossPool.createMultiple(1, 'boss');
+	    this.bossPool.setAll('anchor.x', 0.5);
+	    this.bossPool.setAll('anchor.y', 0.5);
+	    this.bossPool.setAll('scale.x', 0.65);
+	    this.bossPool.setAll('scale.y', 0.65);
+	    this.bossPool.setAll('checkWorldBounds', true);
+	    this.bossPool.setAll('reward', SkeletonWar.BOSS_REWARD, false, false, 0, true);
+	    this.bossPool.setAll(
+	      'dropRate', SkeletonWar.BOSS_DROP_RATE, false, false, 0, true
+	    );
+
+	    this.boss = this.bossPool.getTop();
+	    this.boss.body.setSize(282, 135);
+    	this.bossApproaching = false;
+	},
+	addToScore: function (score) {
+		this.score += score;
+		if (this.score >= 2000 && this.bossPool.countDead() == 1) {
+			this.spawnBoss();
+		}
+	},
+	spawnBoss: function () {
+		this.bossApproaching = true;
+		this.boss.reset(this.game.width + (this.boss.width / 2), this.game.height / 2, SkeletonWar.BOSS_HEALTH);
+		this.physics.enable(this.boss, Phaser.Physics.ARCADE);
+		this.boss.body.velocity.x = -SkeletonWar.BOSS_Y_VELOCITY;
 	},
 	render: function () {
-		//this.game.debug.body(this.player);
+		//this.game.debug.body(this.boss);
 	},
 	update: function () {
 		dt = this.time.physicsElapsed;
@@ -123,6 +157,17 @@ SkeletonWar.Game.prototype = {
 		this.physics.arcade.overlap(
 			this.player, this.enemyBulletPool, this.playerHit, null, this
 		);
+
+		if (this.bossApproaching === false) {
+	      this.physics.arcade.overlap(
+	        this.bulletPool, this.bossPool, this.enemyHit, null, this
+	      );
+
+	      this.physics.arcade.overlap(
+	        this.player, this.bossPool, this.playerHit, null, this
+	      );
+	    }
+
 	},
 	spawnEnemies: function () {
 		if (this.nextEnemyAt < this.time.now && this.enemyPool.countDead() > 0) {
@@ -160,6 +205,41 @@ SkeletonWar.Game.prototype = {
 				enemy.nextShotAt = this.time.now + SkeletonWar.SHOOTER_SHOT_DELAY;
 			}
 		}, this);
+
+		if (this.bossApproaching === false && this.boss.alive && 
+		    this.boss.nextShotAt < this.time.now &&
+		    this.enemyBulletPool.countDead() >= 10) {
+
+		  this.boss.nextShotAt = this.time.now + SkeletonWar.BOSS_SHOT_DELAY;
+
+		  for (var i = 0; i < 5; i++) {
+		    // process 2 bullets at a time
+		    var leftBullet = this.enemyBulletPool.getFirstExists(false);
+		    leftBullet.reset(this.boss.x - 10 - i * 10, this.boss.y + 20);
+		    var rightBullet = this.enemyBulletPool.getFirstExists(false);
+		    rightBullet.reset(this.boss.x + 10 + i * 10, this.boss.y + 20);
+
+		    if (this.boss.health > 250) {
+		      // aim directly at the player
+		      this.physics.arcade.moveToObject(
+		        leftBullet, this.player, SkeletonWar.ENEMY_BULLET_VELOCITY
+		      );
+		      this.physics.arcade.moveToObject(
+		        rightBullet, this.player, SkeletonWar.ENEMY_BULLET_VELOCITY
+		      );
+		    } else {
+		      // aim slightly off center of the player
+		      this.physics.arcade.moveToXY(
+		        leftBullet, this.player.x - i * 100, this.player.y,
+		        SkeletonWar.ENEMY_BULLET_VELOCITY
+		      );
+		      this.physics.arcade.moveToXY(
+		        rightBullet, this.player.x + i * 100, this.player.y,
+		        SkeletonWar.ENEMY_BULLET_VELOCITY
+		      );
+		    }
+		  }
+		}
 	},
 	processInput: function () {
 		this.player.body.velocity.x = 0;
@@ -192,6 +272,17 @@ SkeletonWar.Game.prototype = {
 			this.ghostUntil = null;
 			this.player.play('fly');
 		}
+
+		if (this.bossApproaching && this.boss.x < this.game.width / 2 + this.boss.width / 2) {
+	      this.bossApproaching = false;
+	      this.boss.nextShotAt = 0;
+
+	      this.boss.body.velocity.y = SkeletonWar.BOSS_X_VELOCITY;
+	      this.boss.body.velocity.x = 0;
+	      // allow bouncing off world bounds
+	      this.boss.body.bounce.y = 1;
+	      this.boss.body.collideWorldBounds = true;
+	    }
 	},
 	enemyHit: function (bullet, enemy) {
 		bullet.kill();
@@ -215,7 +306,7 @@ SkeletonWar.Game.prototype = {
 	damageEnemy: function (enemy, damage) {
 		enemy.damage(damage);
 		if (!enemy.alive) {
-			//explode?
+			this.addToScore(enemy.reward);
 		}
 	},
 	fire: function () {
