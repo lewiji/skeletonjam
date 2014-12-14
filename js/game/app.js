@@ -1,4 +1,5 @@
 window.onload = function() {
+    SkeletonWar.setDefaults();
     var game = new Phaser.Game(SkeletonWar.WIDTH, SkeletonWar.HEIGHT, Phaser.AUTO, 'gameContainer', null, false, false);
 
     game.state.add('Boot', SkeletonWar.Boot);
