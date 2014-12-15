@@ -155,8 +155,8 @@ SkeletonWar.Game.prototype = {
 	    this.bossPool.createMultiple(1, 'boss');
 	    this.bossPool.setAll('anchor.x', 0.5);
 	    this.bossPool.setAll('anchor.y', 0.5);
-	    //this.bossPool.setAll('scale.x', 0.65);
-	    //this.bossPool.setAll('scale.y', 0.65);
+	    this.bossPool.setAll('scale.x', 0.65);
+	    this.bossPool.setAll('scale.y', 0.65);
 	    this.bossPool.setAll('checkWorldBounds', true);
 	    this.bossPool.setAll('reward', SkeletonWar.BOSS_REWARD, false, false, 0, true);
 	    this.bossPool.setAll(
@@ -193,7 +193,7 @@ SkeletonWar.Game.prototype = {
 
 		if (this.score >= 1000 && SkeletonWar.SHOOTER_SHOT_DELAY > Phaser.Timer.SECOND) {
 			SkeletonWar.SHOT_DELAY = Phaser.Timer.SECOND * 0.1;
-			SkeletonWar.SHOOTER_SHOT_DELAY = Phaser.Timer.SECOND * 0.75;
+			SkeletonWar.SHOOTER_SHOT_DELAY = Phaser.Timer.SECOND * 2;
 		}
 
 		if (this.score >= 2000 && this.bossPool.countDead() == 1) {
