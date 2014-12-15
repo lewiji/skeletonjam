@@ -290,7 +290,7 @@ SkeletonWar.Game.prototype = {
 
 			shooter.rotation = this.physics.arcade.moveToXY(
 				shooter, 0, target, this.rnd.integerInRange(SkeletonWar.SHOOTER_MIN_VELOCITY, SkeletonWar.SHOOTER_MAX_VELOCITY)
-			) //- Math.PI / 2;
+			) - 180//Math.PI / 2;
 
 			shooter.nextShotAt = 0;
 		}
