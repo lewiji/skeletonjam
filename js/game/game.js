@@ -193,7 +193,7 @@ SkeletonWar.Game.prototype = {
 
 		if (this.score >= 1000 && SkeletonWar.SHOOTER_SHOT_DELAY > Phaser.Timer.SECOND) {
 			SkeletonWar.SHOT_DELAY = Phaser.Timer.SECOND * 0.1;
-			SkeletonWar.SHOOTER_SHOT_DELAY = Phaser.Timer.SECOND * 2;
+			SkeletonWar.SHOOTER_SHOT_DELAY = Phaser.Timer.SECOND * 1.5;
 		}
 
 		if (this.score >= 2000 && this.bossPool.countDead() == 1) {
