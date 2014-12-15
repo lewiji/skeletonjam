@@ -145,7 +145,9 @@ SkeletonWar.Game.prototype = {
 		this.shooterPool.setAll(
 		  'dropRate', SkeletonWar.SHOOTER_DROP_RATE, false, false, 0, true
 		);
-
+        this.ShooterPool.forEach(function (shooter) {
+			shooter.animations.add('fly', [], 20, true);
+		});
 		this.nextShooterAt = this.time.now + Phaser.Timer.SECOND * 5;
 		this.shooterDelay = SkeletonWar.SPAWN_SHOOTER_DELAY;
 
