@@ -114,10 +114,6 @@ SkeletonWar.Game.prototype = {
 		this.enemyPool.forEach(function (enemy) {
 			enemy.animations.add('fly', [0, 1], 20, true);
 		});
-        
-        this.enemyPool.forEach(function (enemy2) {
-			enemy.animations.add('fly', [0, 1, 2], 20, true);
-		});
 
 		this.explosionPool = this.add.group();
 		this.explosionPool.enableBody = true;
@@ -129,7 +125,7 @@ SkeletonWar.Game.prototype = {
 		this.explosionPool.setAll('checkWorldBounds', true);
 
 		this.explosionPool.forEach(function (explosion) {
-			explosion.animations.add('explode', [0, 1, 2, 3, 4], 15);
+			explosion.animations.add('explode', [0, 1, 2, 3], 10);
 			explosion.events.onAnimationComplete.add(function (e) {
 				e.kill();
 			}, this);
