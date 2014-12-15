@@ -18,7 +18,7 @@ SkeletonWar.setDefaults = function () {
   SkeletonWar.SHOOTER_SHOT_DELAY = Phaser.Timer.SECOND * 3;
   SkeletonWar.BOSS_SHOT_DELAY = Phaser.Timer.SECOND * 2;
   SkeletonWar.ENEMY_HEALTH = 3;
-  SkeletonWar.SHOOTER_HEALTH = 5;
+  SkeletonWar.SHOOTER_HEALTH = 7;
   SkeletonWar.BOSS_HEALTH = 500;
   SkeletonWar.BULLET_DAMAGE = 1;
   SkeletonWar.CRASH_DAMAGE = 5;
@@ -53,7 +53,7 @@ SkeletonWar.Boot.prototype = {
     if (this.game.device.desktop) {
       //  If you have any desktop specific settings, they can go in here
       this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-      this.scale.setMinMax(640, 360, 1024, 720);
+      this.scale.setMinMax(640, 360, 1280, 720);
     } else {
       //  Same goes for mobile settings.
       //  In this case we're saying "scale the game, no lower than 480x260 and no higher than 1024x768"
