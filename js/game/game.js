@@ -145,6 +145,9 @@ SkeletonWar.Game.prototype = {
 		this.shooterPool.setAll(
 		  'dropRate', SkeletonWar.SHOOTER_DROP_RATE, false, false, 0, true
 		);
+		this.shooterPool.forEach(function (shooter) {
+			shooter.animations.add('fly', [0, 1, 2], 8, true);
+		});
 		this.nextShooterAt = this.time.now + Phaser.Timer.SECOND * 5;
 		this.shooterDelay = SkeletonWar.SPAWN_SHOOTER_DELAY;
 
@@ -290,6 +293,8 @@ SkeletonWar.Game.prototype = {
 			this.physics.arcade.moveToXY(
 				shooter, 0, target, this.rnd.integerInRange(SkeletonWar.SHOOTER_MIN_VELOCITY, SkeletonWar.SHOOTER_MAX_VELOCITY)
 			);
+
+			shooter.play('fly');
 
 			shooter.nextShotAt = 0;
 		}
