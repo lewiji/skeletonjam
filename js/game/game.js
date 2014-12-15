@@ -116,7 +116,7 @@ SkeletonWar.Game.prototype = {
 		});
         
         this.shooterPool.forEach(function (enemy2) {
-			enemy2.animations.add('fly', [0, 1, 3], 20, true);
+			enemy2.animations.add('fly', [], 20, true);
 		});
 
 		this.explosionPool = this.add.group();
