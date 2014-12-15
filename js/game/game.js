@@ -114,10 +114,6 @@ SkeletonWar.Game.prototype = {
 		this.enemyPool.forEach(function (enemy) {
 			enemy.animations.add('fly', [0, 1], 20, true);
 		});
-        
-        //this.shooterPool.forEach(function (shooter) {
-		//	shooter.animations.add('fly', [0, 1, 3], 20, true);
-		//});
 
 		this.explosionPool = this.add.group();
 		this.explosionPool.enableBody = true;
