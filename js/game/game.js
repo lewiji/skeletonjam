@@ -125,7 +125,7 @@ SkeletonWar.Game.prototype = {
 		this.explosionPool.setAll('checkWorldBounds', true);
 
 		this.explosionPool.forEach(function (explosion) {
-			explosion.animations.add('explode', [0, 1, 2, 3], 10);
+			explosion.animations.add('explode', [0, 1, 2, 3, 4], 20);
 			explosion.events.onAnimationComplete.add(function (e) {
 				e.kill();
 			}, this);
