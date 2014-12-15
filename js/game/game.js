@@ -91,7 +91,7 @@ SkeletonWar.Game.prototype = {
 		this.bulletPool.setAll('outOfBoundsKill', true);
 		this.bulletPool.setAll('checkWorldBounds', true);
 		this.nextShotAt = 0;
-		this.shotDelay = 200;
+		this.shotDelay = 160;
 	},
 	createEnemies: function () {
 		this.enemyPool = this.add.group();
