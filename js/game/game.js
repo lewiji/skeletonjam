@@ -288,11 +288,11 @@ SkeletonWar.Game.prototype = {
 
 			var target = this.rnd.integerInRange(32, SkeletonWar.HEIGHT - 32);
 
-			/*shooter.rotation = this.physics.arcade.moveToXY(
+			shooter.rotation = this.physics.arcade.moveToXY(
 				shooter, 0, target, this.rnd.integerInRange(SkeletonWar.SHOOTER_MIN_VELOCITY, SkeletonWar.SHOOTER_MAX_VELOCITY)
 			) - Math.PI / 2;
 
-			shooter.nextShotAt = 0;*/
+			shooter.nextShotAt = 0;
 		}
 	},
 	enemyFire: function () {
@@ -405,6 +405,8 @@ SkeletonWar.Game.prototype = {
 			this.ghostUntil = this.time.now + SkeletonWar.PLAYER_GHOST_TIME;
 			this.player.play('ghost');
 			this.sfx_player_die.play();
+            this.player.x = SkeletonWar.WIDTH / 8
+            this.player.y = SkeletonWar.HEIGHT / 2
 		} else {
 			player.kill();
 			this.quitGame();
