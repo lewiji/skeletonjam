@@ -155,8 +155,8 @@ SkeletonWar.Game.prototype = {
 	    this.bossPool.createMultiple(1, 'boss');
 	    this.bossPool.setAll('anchor.x', 0.5);
 	    this.bossPool.setAll('anchor.y', 0.5);
-	    this.bossPool.setAll('scale.x', 0.65);
-	    this.bossPool.setAll('scale.y', 0.65);
+	    //this.bossPool.setAll('scale.x', 0.65);
+	    //this.bossPool.setAll('scale.y', 0.65);
 	    this.bossPool.setAll('checkWorldBounds', true);
 	    this.bossPool.setAll('reward', SkeletonWar.BOSS_REWARD, false, false, 0, true);
 	    this.bossPool.setAll(
@@ -288,9 +288,9 @@ SkeletonWar.Game.prototype = {
 
 			var target = this.rnd.integerInRange(32, SkeletonWar.HEIGHT - 32);
 
-			/*shooter.rotation = */this.physics.arcade.moveToXY(
+			shooter.rotation = this.physics.arcade.moveToXY(
 				shooter, 0, target, this.rnd.integerInRange(SkeletonWar.SHOOTER_MIN_VELOCITY, SkeletonWar.SHOOTER_MAX_VELOCITY)
-			)/* - Math.PI / 2;*/
+			) - Math.PI / 2;
 
 			shooter.nextShotAt = 0;
 		}
